@@ -113,12 +113,17 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          padding: '8px 24px',
+          padding: '10px 20px',
           fontSize: '0.875rem',
           fontWeight: 500,
           boxShadow: 'none',
+          minHeight: 44, // Touch-friendly minimum height
           '&:hover': {
             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+          },
+          [theme.breakpoints.down('sm')]: {
+            padding: '12px 16px',
+            fontSize: '0.8rem',
           },
         },
         contained: {
@@ -134,6 +139,10 @@ export const theme = createTheme({
           borderRadius: 16,
           boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12), 0px 1px 2px rgba(0, 0, 0, 0.24)',
           border: '1px solid #e2e8f0',
+          [theme.breakpoints.down('sm')]: {
+            borderRadius: 12,
+            margin: '0 4px',
+          },
         },
       },
     },
@@ -142,6 +151,9 @@ export const theme = createTheme({
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 8,
+            [theme.breakpoints.down('sm')]: {
+              fontSize: '16px', // Prevents zoom on iOS
+            },
           },
         },
       },
@@ -151,6 +163,31 @@ export const theme = createTheme({
         root: {
           boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12)',
           borderBottom: '1px solid #e2e8f0',
+        },
+      },
+    },
+    MuiContainer: {
+      styleOverrides: {
+        root: {
+          [theme.breakpoints.down('sm')]: {
+            paddingLeft: 8,
+            paddingRight: 8,
+          },
+        },
+      },
+    },
+    MuiDataGrid: {
+      styleOverrides: {
+        root: {
+          [theme.breakpoints.down('sm')]: {
+            '& .MuiDataGrid-columnHeaders': {
+              fontSize: '0.75rem',
+            },
+            '& .MuiDataGrid-cell': {
+              fontSize: '0.75rem',
+              padding: '4px 8px',
+            },
+          },
         },
       },
     },

@@ -68,8 +68,54 @@ textarea:focus {
   }
   
   .MuiContainer-root {
-    padding-left: 8px !important;
-    padding-right: 8px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+  
+  /* Improve touch targets */
+  .MuiButton-root {
+    min-height: 44px;
+  }
+  
+  .MuiIconButton-root {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Better spacing for mobile */
+  .MuiCard-root {
+    margin-bottom: 12px;
+  }
+  
+  /* Optimize data grid for mobile */
+  .MuiDataGrid-root {
+    font-size: 0.75rem;
+  }
+  
+  .MuiDataGrid-cell {
+    padding: 4px 8px;
+  }
+  
+  /* Better modal experience on mobile */
+  .MuiDialog-paper {
+    margin: 8px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .MuiContainer-root {
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+  }
+  
+  .MuiCard-root {
+    border-radius: 8px !important;
+    margin: 0 4px 8px 4px;
+  }
+  
+  .MuiPaper-root {
+    border-radius: 8px !important;
   }
 }
 

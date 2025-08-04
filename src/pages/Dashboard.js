@@ -201,26 +201,31 @@ function Dashboard() {
         component="main" 
         sx={{ 
           flexGrow: 1, 
-          p: { xs: 2, md: 3 }, 
+          p: { xs: 1, sm: 2, md: 3 }, 
           ml: { xs: 0, md: '280px' },
-          mt: '64px',
-          minHeight: 'calc(100vh - 64px)',
+          mt: { xs: '56px', sm: '64px' },
+          minHeight: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
         }}
       >
-        <Container maxWidth="xl" sx={{ px: { xs: 0, sm: 2 } }}>
+        <Container maxWidth="xl" sx={{ px: { xs: 0, sm: 1, md: 2 } }}>
           {/* Header */}
-          <Box sx={{ mb: 4 }}>
+          <Box sx={{ mb: { xs: 2, sm: 3, md: 4 }, px: { xs: 1, sm: 0 } }}>
             <Typography 
-              variant="h4" 
+              variant={{ xs: 'h5', sm: 'h4' }}
               sx={{ 
                 fontWeight: 600, 
                 color: 'text.primary',
                 mb: 1,
+                fontSize: { xs: '1.5rem', sm: '2rem' },
               }}
             >
               Dashboard Overview
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography 
+              variant="body2" 
+              color="text.secondary"
+              sx={{ fontSize: { xs: '0.8rem', sm: '1rem' } }}
+            >
               Monitor student check-ins and attendance in real-time
             </Typography>
           </Box>
@@ -230,24 +235,32 @@ function Dashboard() {
           {/* Filters Section */}
           <Paper 
             sx={{ 
-              p: 3, 
-              mb: 3, 
+              p: { xs: 2, sm: 3 }, 
+              mb: { xs: 2, sm: 3 }, 
               borderRadius: 3,
               border: '1px solid',
               borderColor: 'grey.200',
+              mx: { xs: 1, sm: 0 },
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <FilterList sx={{ mr: 1, color: 'primary.main' }} />
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+              <Typography 
+                variant={{ xs: 'subtitle1', sm: 'h6' }}
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: { xs: '1rem', sm: '1.25rem' },
+                }}
+              >
                 Filters & Search
               </Typography>
             </Box>
             
-            <Grid container spacing={2} alignItems="center">
-              <Grid item xs={12} md={4}>
+            <Grid container spacing={{ xs: 1, sm: 2 }} alignItems="center">
+              <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   fullWidth
+                  size={isMobile ? "small" : "medium"}
                   placeholder="Search by email..."
                   value={emailFilter}
                   onChange={(e) => setEmailFilter(e.target.value)}
@@ -265,9 +278,10 @@ function Dashboard() {
                   }}
                 />
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <TextField
                   fullWidth
+                  size={isMobile ? "small" : "medium"}
                   type="date"
                   label="Filter by Date"
                   InputLabelProps={{ shrink: true }}
@@ -283,6 +297,7 @@ function Dashboard() {
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                   <Button
                     variant="contained"
+                    size={isMobile ? "small" : "medium"}
                     startIcon={<Download />}
                     sx={{ borderRadius: 2 }}
                   >
@@ -299,6 +314,7 @@ function Dashboard() {
                       label={`${filtered.length} results`}
                       color="primary"
                       variant="outlined"
+                      size={isMobile ? "small" : "medium"}
                     />
                   )}
                 </Box>
@@ -313,41 +329,60 @@ function Dashboard() {
               overflow: 'hidden',
               border: '1px solid',
               borderColor: 'grey.200',
+              mx: { xs: 1, sm: 0 },
             }}
           >
-            <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid', borderColor: 'grey.200' }}>
+              <Typography 
+                variant={{ xs: 'subtitle1', sm: 'h6' }}
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: { xs: '1rem', sm: '1.25rem' },
+                }}
+              >
                 Recent Check-Ins
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+              >
                 {filtered.length} total entries
               </Typography>
             </Box>
             
-            <Box sx={{ height: 500 }}>
+            <Box sx={{ height: { xs: 400, sm: 500 } }}>
               <DataGrid
                 rows={filtered}
-                columns={columns}
+                columns={isMobile ? mobileColumns : columns}
                 initialState={{
                   pagination: {
-                    paginationModel: { page: 0, pageSize: 10 },
+                    paginationModel: { page: 0, pageSize: isMobile ? 5 : 10 },
                   },
                 }}
-                pageSizeOptions={[5, 10, 25]}
+                pageSizeOptions={isMobile ? [5, 10] : [5, 10, 25]}
                 disableRowSelectionOnClick
+                density={isMobile ? "compact" : "standard"}
                 sx={{
                   border: 'none',
                   '& .MuiDataGrid-cell': {
                     borderBottom: '1px solid',
                     borderColor: 'grey.100',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                    padding: { xs: '4px 8px', sm: '8px 16px' },
                   },
                   '& .MuiDataGrid-columnHeaders': {
                     backgroundColor: 'grey.50',
                     borderBottom: '1px solid',
                     borderColor: 'grey.200',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
                   },
                   '& .MuiDataGrid-row:hover': {
                     backgroundColor: 'grey.50',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    borderTop: '1px solid',
+                    borderColor: 'grey.200',
                   },
                 }}
               />
@@ -357,22 +392,33 @@ function Dashboard() {
           {/* Map Section */}
           <Paper 
             sx={{ 
-              mt: 3,
+              mt: { xs: 2, sm: 3 },
               borderRadius: 3,
               overflow: 'hidden',
               border: '1px solid',
               borderColor: 'grey.200',
+              mx: { xs: 1, sm: 0 },
             }}
           >
-            <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            <Box sx={{ p: { xs: 2, sm: 3 }, borderBottom: '1px solid', borderColor: 'grey.200' }}>
+              <Typography 
+                variant={{ xs: 'subtitle1', sm: 'h6' }}
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: { xs: '1rem', sm: '1.25rem' },
+                }}
+              >
                 Location Map
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography 
+                variant="caption" 
+                color="text.secondary"
+                sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' } }}
+              >
                 Geographic distribution of check-ins
               </Typography>
             </Box>
-            <Box sx={{ height: 400 }}>
+            <Box sx={{ height: { xs: 300, sm: 400 } }}>
               <CheckinMap checkins={filtered} />
             </Box>
           </Paper>
@@ -383,6 +429,7 @@ function Dashboard() {
           <Fab
             color="primary"
             aria-label="add"
+            size="medium"
             sx={{
               position: 'fixed',
               bottom: 16,
@@ -398,16 +445,19 @@ function Dashboard() {
         <Dialog 
           open={!!selectedImage} 
           onClose={() => setSelectedImage(null)}
-          maxWidth="md"
+          maxWidth={isMobile ? "sm" : "md"}
           fullWidth
+          fullScreen={isMobile}
         >
           <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            Check-in Photo
+            <Typography variant={isMobile ? "subtitle1" : "h6"}>
+              Check-in Photo
+            </Typography>
             <IconButton onClick={() => setSelectedImage(null)}>
               <Close />
             </IconButton>
           </DialogTitle>
-          <DialogContent>
+          <DialogContent sx={{ p: { xs: 1, sm: 3 } }}>
             <Box
               component="img"
               src={selectedImage}
@@ -416,7 +466,7 @@ function Dashboard() {
                 width: '100%',
                 height: 'auto',
                 borderRadius: 2,
-                maxHeight: '70vh',
+                maxHeight: { xs: '60vh', sm: '70vh' },
                 objectFit: 'contain',
               }}
             />
@@ -426,5 +476,66 @@ function Dashboard() {
     </Box>
   );
 }
+  // Mobile-optimized columns for DataGrid
+  const mobileColumns = [
+    { 
+      field: "email", 
+      headerName: "Student", 
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => (
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.75rem' }}>
+            {params.value?.split('@')[0]}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+            {params.value?.split('@')[1]}
+          </Typography>
+        </Box>
+      ),
+    },
+    {
+      field: "imageUri", 
+      headerName: "Photo", 
+      width: 60,
+      sortable: false,
+      renderCell: (params) => (
+        <Box
+          component="img"
+          src={params.value}
+          alt="checkin"
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: 1,
+            cursor: "pointer",
+            objectFit: 'cover',
+            border: '1px solid',
+            borderColor: 'grey.200',
+          }}
+          onClick={() => setSelectedImage(params.value)}
+        />
+      )
+    },
+    {
+      field: "timestamp", 
+      headerName: "Time", 
+      flex: 1,
+      minWidth: 100,
+      valueFormatter: (params) =>
+        params.value?.toDate?.().toLocaleString() || new Date(params.value).toLocaleString(),
+      renderCell: (params) => (
+        <Box>
+          <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.7rem' }}>
+            {format(params.value?.toDate?.() || new Date(params.value), 'MMM dd')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+            {format(params.value?.toDate?.() || new Date(params.value), 'hh:mm a')}
+          </Typography>
+        </Box>
+      ),
+    }
+  ];
+
 
 export default Dashboard;

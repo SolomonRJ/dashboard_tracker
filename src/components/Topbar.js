@@ -55,9 +55,16 @@ const Topbar = ({ onMenuClick, mobileOpen, onMobileToggle }) => {
           backgroundColor: 'background.paper',
           color: 'text.primary',
           boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12)',
+          height: { xs: 56, sm: 64 }, // Shorter on mobile
         }}
       >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Toolbar 
+          sx={{ 
+            justifyContent: 'space-between',
+            minHeight: { xs: 56, sm: 64 },
+            px: { xs: 1, sm: 3 },
+          }}
+        >
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             {isMobile && (
               <IconButton
@@ -65,7 +72,7 @@ const Topbar = ({ onMenuClick, mobileOpen, onMobileToggle }) => {
                 aria-label="open drawer"
                 edge="start"
                 onClick={onMobileToggle}
-                sx={{ mr: 2 }}
+                sx={{ mr: 1, p: 1 }}
               >
                 <MenuIcon />
               </IconButton>
@@ -73,27 +80,28 @@ const Topbar = ({ onMenuClick, mobileOpen, onMobileToggle }) => {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box
                 sx={{
-                  width: 32,
-                  height: 32,
+                  width: { xs: 28, sm: 32 },
+                  height: { xs: 28, sm: 32 },
                   borderRadius: '8px',
                   background: 'linear-gradient(135deg, #1976d2, #42a5f5)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: 'white',
-                  fontSize: '1.2rem',
+                  fontSize: { xs: '1rem', sm: '1.2rem' },
                 }}
               >
                 🎓
               </Box>
               <Typography 
-                variant="h6" 
+                variant={{ xs: 'subtitle1', sm: 'h6' }}
                 noWrap 
                 component="div"
                 sx={{ 
                   fontWeight: 500,
                   color: 'text.primary',
-                  display: { xs: 'none', sm: 'block' }
+                  display: { xs: 'none', sm: 'block' },
+                  fontSize: { xs: '1rem', sm: '1.25rem' },
                 }}
               >
                 Faculty Dashboard
@@ -101,19 +109,28 @@ const Topbar = ({ onMenuClick, mobileOpen, onMobileToggle }) => {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <IconButton color="inherit" size="large">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0, sm: 1 } }}>
+            <IconButton 
+              color="inherit" 
+              size={isMobile ? "medium" : "large"}
+              sx={{ p: { xs: 1, sm: 1.5 } }}
+            >
               <Notifications />
             </IconButton>
             <IconButton
-              size="large"
+              size={isMobile ? "medium" : "large"}
               edge="end"
               aria-label="account of current user"
               aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"
+              sx={{ p: { xs: 1, sm: 1.5 } }}
             >
-              <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
+              <Avatar sx={{ 
+                width: { xs: 28, sm: 32 }, 
+                height: { xs: 28, sm: 32 }, 
+                bgcolor: 'primary.main' 
+              }}>
                 <AccountCircle />
               </Avatar>
             </IconButton>
