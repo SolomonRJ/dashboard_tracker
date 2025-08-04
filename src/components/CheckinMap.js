@@ -1,8 +1,16 @@
 import React from "react";
-import ReactDOM from "react-dom";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Box, Typography, Chip } from "@mui/material";
 import { LocationOn } from "@mui/icons-material";
+import L from 'leaflet';
+
+// Fix for default markers in react-leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const CheckinMap = ({ checkins }) => {
   const defaultCenter = [12.87, 77.65];
@@ -23,7 +31,7 @@ const CheckinMap = ({ checkins }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {checkins.map((checkin) => (
+        {checkins && checkins.length > 0 && checkins.map((checkin) => (
           <Marker 
             key={checkin.id} 
             position={[checkin.latitude, checkin.longitude]}
@@ -93,13 +101,13 @@ const CheckinMap = ({ checkins }) => {
         </Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Chip 
-            label={`${checkins.length} Check-ins`} 
+            label={`${checkins?.length || 0} Check-ins`} 
             size="small" 
             color="primary" 
             variant="outlined"
           />
           <Chip 
-            label={`${new Set(checkins.map(c => c.latitude + c.longitude)).size} Locations`} 
+            label={`${new Set(checkins?.map(c => c.latitude + c.longitude) || []).size} Locations`} 
             size="small" 
             color="secondary" 
             variant="outlined"

@@ -18,6 +18,10 @@ import {
   useMediaQuery,
   useTheme,
   Fab,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
 } from "@mui/material";
 
 import {
@@ -31,26 +35,11 @@ import {
 import { DataGrid } from "@mui/x-data-grid";
 import { CSVLink } from "react-csv";
 import { format } from "date-fns";
-import { motion } from "framer-motion";
 
 import Sidebar from "../components/Sidebar";
 import Topbar from "../components/Topbar";
 import StatsCards from "../components/StatsCards";
 import CheckinMap from "../components/CheckinMap";
-
-const modalStyle = {
-  position: 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '90%',
-  maxWidth: 600,
-  bgcolor: 'background.paper',
-  borderRadius: 3,
-  boxShadow: 24,
-  p: 0,
-  overflow: 'hidden',
-};
 
 function Dashboard() {
   const theme = useTheme();
@@ -69,10 +58,35 @@ function Dashboard() {
   // Fetch Firestore data
   useEffect(() => {
     const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "checkins"));
-      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setCheckins(data);
-      setFiltered(data);
+      try {
+        const querySnapshot = await getDocs(collection(db, "checkins"));
+        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setCheckins(data);
+        setFiltered(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        // Set some mock data for demo purposes
+        const mockData = [
+          {
+            id: '1',
+            email: 'student1@example.com',
+            latitude: 12.87,
+            longitude: 77.65,
+            timestamp: new Date(),
+            imageUri: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1'
+          },
+          {
+            id: '2',
+            email: 'student2@example.com',
+            latitude: 12.88,
+            longitude: 77.66,
+            timestamp: new Date(),
+            imageUri: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&dpr=1'
+          }
+        ];
+        setCheckins(mockData);
+        setFiltered(mockData);
+      }
     };
     fetchData();
   }, []);
@@ -157,7 +171,7 @@ function Dashboard() {
       flex: 1,
       minWidth: 180,
       valueFormatter: (params) =>
-        params.value?.toDate?.().toLocaleString() || params.value,
+        params.value?.toDate?.().toLocaleString() || new Date(params.value).toLocaleString(),
       renderCell: (params) => (
         <Box>
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -174,7 +188,7 @@ function Dashboard() {
   // Stats for cards
   const stats = [
     { title: "Total Check-Ins", value: filtered.length },
-    { title: "Active Locations", value: new Set(filtered.map(c => c.latitude + c.longitude)).size },
+    { title: "Active Locations", value: new Set(filtered.map(c => `${c.latitude}-${c.longitude}`)).size },
     { title: "Today's Check-Ins", value: filtered.filter(c =>
         (c.timestamp?.toDate?.() || new Date(c.timestamp))
         .toDateString() === new Date().toDateString()
@@ -217,168 +231,154 @@ function Dashboard() {
           <StatsCards stats={stats} />
 
           {/* Filters Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <Paper 
+            sx={{ 
+              p: 3, 
+              mb: 3, 
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'grey.200',
+            }}
           >
-            <Paper 
-              sx={{ 
-                p: 3, 
-                mb: 3, 
-                borderRadius: 3,
-                border: '1px solid',
-                borderColor: 'grey.200',
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <FilterList sx={{ mr: 1, color: 'primary.main' }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Filters & Search
-                </Typography>
-              </Box>
-              
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    placeholder="Search by email..."
-                    value={emailFilter}
-                    onChange={(e) => setEmailFilter(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Search color="action" />
-                        </InputAdornment>
-                      ),
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'background.paper',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label="Filter by Date"
-                    InputLabelProps={{ shrink: true }}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        backgroundColor: 'background.paper',
-                      },
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Button
-                      variant="contained"
-                      startIcon={<Download />}
-                      sx={{ borderRadius: 2 }}
-                    >
-                      <CSVLink
-                        data={filtered}
-                        filename={"checkins.csv"}
-                        style={{ textDecoration: "none", color: "inherit" }}
-                      >
-                        Export CSV
-                      </CSVLink>
-                    </Button>
-                    {(emailFilter || dateFilter) && (
-                      <Chip
-                        label={`${filtered.length} results`}
-                        color="primary"
-                        variant="outlined"
-                      />
-                    )}
-                  </Box>
-                </Grid>
-              </Grid>
-            </Paper>
-          </motion.div>
-
-          {/* Data Table */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            <Paper 
-              sx={{ 
-                borderRadius: 3,
-                overflow: 'hidden',
-                border: '1px solid',
-                borderColor: 'grey.200',
-              }}
-            >
-              <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Recent Check-Ins
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {filtered.length} total entries
-                </Typography>
-              </Box>
-              
-              <Box sx={{ height: 500 }}>
-                <DataGrid
-                  rows={filtered}
-                  columns={columns}
-                  pageSize={10}
-                  rowsPerPageOptions={[5, 10, 25]}
-                  disableSelectionOnClick
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <FilterList sx={{ mr: 1, color: 'primary.main' }} />
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Filters & Search
+              </Typography>
+            </Box>
+            
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  placeholder="Search by email..."
+                  value={emailFilter}
+                  onChange={(e) => setEmailFilter(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Search color="action" />
+                      </InputAdornment>
+                    ),
+                  }}
                   sx={{
-                    border: 'none',
-                    '& .MuiDataGrid-cell': {
-                      borderBottom: '1px solid',
-                      borderColor: 'grey.100',
-                    },
-                    '& .MuiDataGrid-columnHeaders': {
-                      backgroundColor: 'grey.50',
-                      borderBottom: '1px solid',
-                      borderColor: 'grey.200',
-                    },
-                    '& .MuiDataGrid-row:hover': {
-                      backgroundColor: 'grey.50',
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'background.paper',
                     },
                   }}
                 />
-              </Box>
-            </Paper>
-          </motion.div>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  type="date"
+                  label="Filter by Date"
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      backgroundColor: 'background.paper',
+                    },
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<Download />}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    <CSVLink
+                      data={filtered}
+                      filename={"checkins.csv"}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Export CSV
+                    </CSVLink>
+                  </Button>
+                  {(emailFilter || dateFilter) && (
+                    <Chip
+                      label={`${filtered.length} results`}
+                      color="primary"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
+
+          {/* Data Table */}
+          <Paper 
+            sx={{ 
+              borderRadius: 3,
+              overflow: 'hidden',
+              border: '1px solid',
+              borderColor: 'grey.200',
+            }}
+          >
+            <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Recent Check-Ins
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {filtered.length} total entries
+              </Typography>
+            </Box>
+            
+            <Box sx={{ height: 500 }}>
+              <DataGrid
+                rows={filtered}
+                columns={columns}
+                initialState={{
+                  pagination: {
+                    paginationModel: { page: 0, pageSize: 10 },
+                  },
+                }}
+                pageSizeOptions={[5, 10, 25]}
+                disableRowSelectionOnClick
+                sx={{
+                  border: 'none',
+                  '& .MuiDataGrid-cell': {
+                    borderBottom: '1px solid',
+                    borderColor: 'grey.100',
+                  },
+                  '& .MuiDataGrid-columnHeaders': {
+                    backgroundColor: 'grey.50',
+                    borderBottom: '1px solid',
+                    borderColor: 'grey.200',
+                  },
+                  '& .MuiDataGrid-row:hover': {
+                    backgroundColor: 'grey.50',
+                  },
+                }}
+              />
+            </Box>
+          </Paper>
 
           {/* Map Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+          <Paper 
+            sx={{ 
+              mt: 3,
+              borderRadius: 3,
+              overflow: 'hidden',
+              border: '1px solid',
+              borderColor: 'grey.200',
+            }}
           >
-            <Paper 
-              sx={{ 
-                mt: 3,
-                borderRadius: 3,
-                overflow: 'hidden',
-                border: '1px solid',
-                borderColor: 'grey.200',
-              }}
-            >
-              <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Location Map
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Geographic distribution of check-ins
-                </Typography>
-              </Box>
-              <Box sx={{ height: 400 }}>
-                <CheckinMap checkins={filtered} />
-              </Box>
-            </Paper>
-          </motion.div>
+            <Box sx={{ p: 3, borderBottom: '1px solid', borderColor: 'grey.200' }}>
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                Location Map
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Geographic distribution of check-ins
+              </Typography>
+            </Box>
+            <Box sx={{ height: 400 }}>
+              <CheckinMap checkins={filtered} />
+            </Box>
+          </Paper>
         </Container>
 
         {/* Floating Action Button for Mobile */}
@@ -398,48 +398,33 @@ function Dashboard() {
         )}
 
         {/* Image Modal */}
-        <Modal 
+        <Dialog 
           open={!!selectedImage} 
           onClose={() => setSelectedImage(null)}
-          sx={{ zIndex: 1300 }}
+          maxWidth="md"
+          fullWidth
         >
-          <Box sx={modalStyle}>
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                p: 2,
-                borderBottom: '1px solid',
-                borderColor: 'grey.200',
+          <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            Check-in Photo
+            <IconButton onClick={() => setSelectedImage(null)}>
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent>
+            <Box
+              component="img"
+              src={selectedImage}
+              alt="preview"
+              sx={{
+                width: '100%',
+                height: 'auto',
+                borderRadius: 2,
+                maxHeight: '70vh',
+                objectFit: 'contain',
               }}
-            >
-              <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                Check-in Photo
-              </Typography>
-              <Button
-                onClick={() => setSelectedImage(null)}
-                sx={{ minWidth: 'auto', p: 1 }}
-              >
-                <Close />
-              </Button>
-            </Box>
-            <Box sx={{ p: 2 }}>
-              <Box
-                component="img"
-                src={selectedImage}
-                alt="preview"
-                sx={{
-                  width: '100%',
-                  height: 'auto',
-                  borderRadius: 2,
-                  maxHeight: '70vh',
-                  objectFit: 'contain',
-                }}
-              />
-            </Box>
-          </Box>
-        </Modal>
+            />
+          </DialogContent>
+        </Dialog>
       </Box>
     </Box>
   );
